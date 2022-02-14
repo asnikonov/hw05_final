@@ -60,7 +60,7 @@ def profile(request, username):
     context = {
         'author': author,
         'page_obj': page_obj,
-        'following': following
+        'following': following,
     }
     return render(request, template, context)
 
