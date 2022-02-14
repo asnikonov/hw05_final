@@ -29,7 +29,7 @@
             подробная информация
           </a>
           <br>
-          {% if post.group != none %}
+          {% if post.group is not None %}
           <a href="{% url "posts:group_posts" post.group.slug %}"
           >все записи группы</a>{% endif %}
         </article>
