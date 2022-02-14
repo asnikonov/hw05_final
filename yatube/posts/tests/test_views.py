@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
-from posts.models import Group, Post
+from posts.models import Group, Post, Follow
 
 User = get_user_model()
 
@@ -322,3 +322,62 @@ class AdditionalGroupPostTest(TestCase):
             post_group = first_object.group.title
             self.assertEqual(post_text, self.post.text)
             self.assertEqual(post_group, self.post.group.title)
+
+
+class FollowViewTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='user')
+        cls.author = User.objects.create_user(username='author')
+        cls.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test-slug',
+            description='Тестовое описание',
+        )
+        cls.post = Post.objects.create(
+            author=cls.author,
+            text='Текст поста',
+            group=cls.group,
+        )
+
+    def setUp(self):
+
+        self.guest_client = Client()
+        self.authorized_client = Client()
+        self.authorized_client.force_login(self.user)
+        self.author_client = Client()
+        self.author_client.force_login(self.author)
+
+        cache.clear()
+
+    def test_authorized_user_follow(self):
+        """ Тестирование подписки авторизованным пользователем """
+        self.authorized_client.get(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.author.username}
+        ))
+        follow_obj = Follow.objects.get(author=self.author, user=self.user)
+        self.assertIsNotNone(follow_obj)
+
+    def test_authorized_user_unfollow(self):
+        """ Тестирование отписки авторизованным пользователем """
+        self.authorized_client.get(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.author.username}
+        ))
+        self.authorized_client.get(reverse(
+            'posts:profile_unfollow',
+            kwargs={'username': self.author.username}
+        ))
+        self.assertEqual(Follow.objects.count(), 0)
+
+    def test_following_posts_showing_to_followers(self):
+        """ Тестирование отображения постов отслеживаемых авторов """
+        self.authorized_client.get(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.author.username}
+        ))
+        response = self.authorized_client.get(reverse('posts:follow_index'))
+        following_post = response.context['page_obj'][0].text
+        self.assertEqual(following_post, self.post.text)
