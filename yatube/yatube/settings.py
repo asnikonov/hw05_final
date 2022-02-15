@@ -28,7 +28,9 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost',
                  '127.0.0.1',
                  '[::1]',
-                 'testserver', ]
+                 'testserver',
+                 'www.nikonov23.pythonanywhere.com',
+                 'nikonov23.pythonanywhere.com', ]
 
 
 # Application definition

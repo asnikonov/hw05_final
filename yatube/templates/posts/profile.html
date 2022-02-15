@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %} {{ author.get_full_name }} {% endblock %}
+{% load thumbnail %}
+{% load user_filters %}
 {% block content %}
       <div class="container py-5">
         <div class="row">      
@@ -35,6 +37,9 @@
                   Дата публикации: {{ post.pub_date|date:"d E Y" }}
                 </li>
               </ul>
+            {% thumbnail post.image "960x339" crop="center" upscale=True as im %}
+               <img class="card-img my-2" src="{{ im.url }}">
+            {% endthumbnail %}
               <p>
                 {{ post.text|linebreaksbr }}
               </p>
