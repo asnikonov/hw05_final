@@ -151,7 +151,7 @@ class CommentFormTest(TestCase):
         self.assertEqual(Comment.objects.count(), count_comments + 1)
 
     def test_comment_create_guest(self):
-        """Проверяем создание комментария пользователем в БД."""
+        """Проверяем создание комментария гостем в БД."""
         count_comments = Comment.objects.count()
 
         form_data = {'text': 'Тестовый комментарий. Да начнется холивар!'}
